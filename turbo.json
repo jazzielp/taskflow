@@ -16,6 +16,10 @@
       "outputs": [
         "dist/**",
         "generated/**"
+      ],
+      "env": [
+        "DATABASE_URL",
+        "SHADOW_DATABASE_URL"
       ]
     },
     "dev": {
@@ -42,7 +46,15 @@
         "^build",
         "build"
       ],
-      "cache": false
+      "cache": false,
+      "env": [
+        "DATABASE_URL",
+        "TEST_DATABASE_URL",
+        "JWT_SECRET",
+        "JWT_EXPIRES_IN",
+        "CORS_ORIGIN",
+        "PORT"
+      ]
     }
   }
 }
