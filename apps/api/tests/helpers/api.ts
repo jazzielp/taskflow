@@ -84,3 +84,18 @@ export async function createProject(user: TestUser, name = 'Proyecto de prueba')
 
   return response.body.data
 }
+
+/** Crea una tarea dentro de un proyecto y devuelve el DTO. */
+export async function createTask(
+  user: TestUser,
+  projectId: string,
+  body: Record<string, unknown> = { title: 'Tarea de prueba' },
+) {
+  const response = await request(app)
+    .post(`/api/projects/${projectId}/tasks`)
+    .set(user.auth)
+    .send(body)
+    .expect(201)
+
+  return response.body.data
+}

@@ -10,6 +10,7 @@ import { Router } from 'express'
 import { authenticate } from '../../middleware/auth.middleware'
 import { validate } from '../../middleware/validation.middleware'
 import type { NoParams } from '../../types/http'
+import { projectTasksRoutes } from '../tasks/task.routes'
 import {
   createProjectController,
   deleteProjectController,
@@ -39,5 +40,9 @@ router.patch(
   updateProjectController,
 )
 router.delete('/:id', validate({ params: idParamsSchema }), deleteProjectController)
+
+// Las tareas de un proyecto cuelgan de su proyecto:
+//   GET/POST /api/projects/:projectId/tasks
+router.use('/:projectId/tasks', projectTasksRoutes)
 
 export { router as projectRoutes }
