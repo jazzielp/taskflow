@@ -1,0 +1,27 @@
+# Docker se usa SOLO para infraestructura de desarrollo.
+# La API y los clientes se ejecutan localmente con pnpm.
+#
+#   docker compose up -d
+#
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: taskflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: taskflow
+      POSTGRES_PASSWORD: taskflow
+      POSTGRES_DB: taskflow_dev
+    ports:
+      # Se expone en 5433 para no chocar con un PostgreSQL instalado en la máquina.
+      - "5433:5432"
+    volumes:
+      - taskflow-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskflow -d taskflow_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  taskflow-postgres-data:
