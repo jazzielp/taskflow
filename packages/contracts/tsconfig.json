@@ -1,0 +1,4 @@
+{
+  "extends": "@taskflow/tsconfig/library.json",
+  "include": ["src"]
+}
