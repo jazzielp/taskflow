@@ -1,0 +1,9 @@
+{
+  "extends": "@taskflow/tsconfig/library.json",
+  "compilerOptions": {
+    // Este paquete se ejecuta tanto en el navegador como en Node, así que se
+    // compila contra las APIs comunes a ambos (`setTimeout`, `Intl`...).
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": ["src"]
+}
