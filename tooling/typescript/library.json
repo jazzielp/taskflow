@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Library (TypeScript puro, sin APIs de plataforma)",
+  "extends": "./base.json"
+}

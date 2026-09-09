@@ -1,0 +1,15 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "tooling/*"
+
+# pnpm >= 10 no ejecuta scripts de instalación salvo que se autoricen aquí.
+# Prisma necesita descargar sus motores y argon2/esbuild traen binarios nativos.
+allowBuilds:
+  '@prisma/engines': true
+  argon2: true
+  esbuild: true
+  prisma: true
+
+minimumReleaseAgeExclude:
+  - '@types/node@22.20.2'

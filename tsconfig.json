@@ -1,0 +1,6 @@
+{
+  "//": "tsconfig de la raíz: solo sirve para que el editor no se pierda. Cada workspace tiene el suyo.",
+  "extends": "./tooling/typescript/base.json",
+  "include": [],
+  "exclude": ["node_modules", "**/dist", "**/build"]
+}

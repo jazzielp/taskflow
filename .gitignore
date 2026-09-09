@@ -1,0 +1,29 @@
+# dependencias
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# prisma
+
+# entorno
+.env
+.env.*
+!.env.example
+
+# tests
+coverage/
+test-results/
+playwright-report/
+
+# sistema / editores
+.DS_Store
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json
+packages/database/generated/
