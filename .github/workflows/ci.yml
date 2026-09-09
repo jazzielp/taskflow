@@ -1,0 +1,82 @@
+# Integración continua de TaskFlow.
+#
+# Se ejecuta en cada PR hacia main y en los merges a main. Levanta un
+# PostgreSQL efímero porque los tests de la API son de integración: hablan con
+# una base de datos real, no con mocks.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Si se empuja dos veces seguidas a la misma rama, cancela la ejecución
+# anterior en lugar de dejar dos corriendo a la vez.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Lint, typecheck y tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: taskflow
+          POSTGRES_PASSWORD: taskflow
+          POSTGRES_DB: taskflow_test
+        ports:
+          - 5432:5432
+        # Sin healthcheck, los pasos podrían arrancar antes de que Postgres
+        # acepte conexiones.
+        options: >-
+          --health-cmd "pg_isready -U taskflow -d taskflow_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # En CI no hay archivo .env: las variables vienen de aquí.
+      #
+      # Aquí ambas apuntan a la misma base de datos, y es correcto: el
+      # contenedor es efímero y se destruye al terminar el job, así que no hay
+      # datos de desarrollo que los tests puedan borrar.
+      DATABASE_URL: postgresql://taskflow:taskflow@localhost:5432/taskflow_test?schema=public
+      TEST_DATABASE_URL: postgresql://taskflow:taskflow@localhost:5432/taskflow_test?schema=public
+      # Valor de pruebas, no un secreto: el esquema solo exige 32 caracteres.
+      JWT_SECRET: secreto-de-ci-solo-para-tests-no-usar-en-produccion
+      NODE_ENV: test
+
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v5
+
+      - name: Instalar pnpm
+        # Toma la versión del campo "packageManager" del package.json raíz.
+        uses: pnpm/action-setup@v4
+
+      - name: Instalar Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalar dependencias
+        # --frozen-lockfile falla si el lockfile no coincide con los
+        # package.json, en vez de actualizarlo silenciosamente.
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # Las migraciones sobre la base de test las aplica el globalSetup de
+      # vitest (apps/api/tests/global-setup.ts).
+      - name: Tests
+        run: pnpm test
