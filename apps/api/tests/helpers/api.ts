@@ -73,3 +73,14 @@ export async function createAdmin(): Promise<TestUser> {
     auth: { Authorization: `Bearer ${accessToken}` },
   }
 }
+
+/** Crea un proyecto para el usuario indicado y devuelve el DTO. */
+export async function createProject(user: TestUser, name = 'Proyecto de prueba') {
+  const response = await request(app)
+    .post('/api/projects')
+    .set(user.auth)
+    .send({ name })
+    .expect(201)
+
+  return response.body.data
+}
