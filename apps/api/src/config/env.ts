@@ -10,9 +10,18 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL es obligatoria'),
   JWT_SECRET: z
     .string()
-    .min(32, 'JWT_SECRET debe tener al menos 32 caracteres. Genera uno con: openssl rand -base64 48'),
+    .min(
+      32,
+      'JWT_SECRET debe tener al menos 32 caracteres. Genera uno con: openssl rand -base64 48',
+    ),
   JWT_EXPIRES_IN: z.string().default('7d'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  /**
+   * Documentación interactiva (`/api/docs`). Fuera de producción está siempre
+   * activa; en producción hay que pedirla explícitamente, porque publica la
+   * superficie completa de la API.
+   */
+  DOCS_ENABLED: z.stringbool().optional(),
 })
 
 const parsed = envSchema.safeParse(process.env)
@@ -38,6 +47,7 @@ export const env = {
   corsOrigins: raw.CORS_ORIGIN.split(',')
     .map((origin) => origin.trim())
     .filter(Boolean),
+  docsEnabled: raw.DOCS_ENABLED ?? raw.NODE_ENV !== 'production',
 } as const
 
 export type Env = typeof env
