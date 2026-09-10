@@ -7,12 +7,14 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsup",
     "start": "node dist/server.js",
+    "docs:export": "tsx src/docs/export.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@scalar/express-api-reference": "^0.10.18",
     "@taskflow/config": "workspace:*",
     "@taskflow/contracts": "workspace:*",
     "@taskflow/database": "workspace:*",

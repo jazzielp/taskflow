@@ -8,6 +8,9 @@ build/
 .turbo/
 *.tsbuildinfo
 
+# contrato generado desde el código con `pnpm docs:export`
+openapi.json
+
 # prisma
 
 # entorno

@@ -46,12 +46,15 @@ TEST_DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/taskflow_test
 JWT_SECRET="..."   # genera uno con: openssl rand -base64 48
 ```
 
-Dos detalles importantes:
+Tres detalles importantes:
 
 - **`TEST_DATABASE_URL` debe apuntar a una base de datos distinta.** Los tests
   la vacían entre pruebas; si apunta a la de desarrollo, perderás el seed.
 - La API carga primero el `.env` de la raíz y después, si existe,
   `apps/api/.env`, que puede sobrescribir valores puntuales.
+- **`DOCS_ENABLED`** controla la documentación interactiva. Fuera de producción
+  está activa sin declarar nada; en producción hay que pedirla con
+  `DOCS_ENABLED=true`, porque publica la superficie completa de la API.
 
 Nunca pongas `DATABASE_URL` ni `JWT_SECRET` en un `.env` de web o mobile: todo
 lo que se envía al navegador o al móvil es visible para el usuario.
@@ -145,6 +148,7 @@ Arranca todos los workspaces que tengan script `dev`. Ahora mismo, la API:
 
 ```
 http://localhost:3000/api/health  →  { "status": "ok" }
+http://localhost:3000/api/docs    →  documentación interactiva (Scalar)
 ```
 
 Solo la API:
@@ -187,6 +191,7 @@ taskflow/
 │       │   ├── app.ts          construye Express (usado también por los tests)
 │       │   ├── server.ts       abre el puerto y gestiona el apagado
 │       │   ├── config/         variables de entorno validadas con Zod
+│       │   ├── docs/           documento OpenAPI y referencia de Scalar
 │       │   ├── lib/            errores de dominio, JWT, hashing, logger, HTTP
 │       │   ├── middleware/     requestId, log, validación, auth, permisos, errores
 │       │   ├── modules/        auth · users · projects · tasks
@@ -264,6 +269,31 @@ Route  →  authenticate  →  validate(schema)  →  Controller
 ---
 
 ## 11. Endpoints
+
+### Documentación interactiva
+
+La API se documenta a sí misma. Con el servidor levantado:
+
+| Ruta                | Qué es                                                 |
+| ------------------- | ------------------------------------------------------ |
+| `/api/docs`         | referencia interactiva (Scalar): navegar y probar      |
+| `/api/openapi.json` | el contrato en OpenAPI 3.0, para clientes y generadores |
+
+El documento **se genera desde el código**, no se escribe a mano: los schemas
+salen de `@taskflow/contracts` (`z.toJSONSchema`, nativo en Zod 4) y la tabla de
+transiciones de estado, de `@taskflow/domain`. Un contrato no puede cambiar sin
+que cambie la documentación, y un test comprueba que no queda ningún endpoint
+sin documentar.
+
+Para volcarlo a un fichero (publicarlo en CI, generar un cliente, revisar el
+diff de la API en un pull request):
+
+```bash
+pnpm docs:export                      # escribe apps/api/openapi.json
+pnpm docs:export /tmp/contrato.json   # o en la ruta que le pases
+```
+
+El fichero está en `.gitignore`: la fuente de verdad es el código.
 
 ### Auth
 
