@@ -1,0 +1,57 @@
+@import 'tailwindcss';
+
+/**
+ * Tokens del sistema de diseño (taskflow.pen).
+ *
+ * Van con prefijo `tf` para no pisar la escala por defecto de Tailwind: así
+ * `rounded-md` sigue siendo el de Tailwind y `rounded-tf-md` es el del diseño.
+ * Si un valor cambia en el canvas, se cambia aquí y en ningún sitio más.
+ */
+@theme {
+  --color-tf-bg: #0f1115;
+  --color-tf-surface: #16181d;
+  --color-tf-surface-2: #1c1f26;
+  --color-tf-border: #232833;
+  --color-tf-border-strong: #333b4a;
+
+  --color-tf-text: #e6e9ef;
+  --color-tf-muted: #8a93a6;
+  --color-tf-dim: #5c6577;
+
+  --color-tf-accent: #a3e635;
+  --color-tf-accent-ink: #101706;
+  --color-tf-accent-soft: #a3e6351f;
+  --color-tf-danger: #ff5c5c;
+  --color-tf-danger-soft: #ff5c5c14;
+
+  /* Un color por estado de tarea. Los nombres son los del enum `TaskStatus`. */
+  --color-tf-todo: #8a93a6;
+  --color-tf-in-progress: #38bdf8;
+  --color-tf-done: #a3e635;
+
+  --font-tf-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-tf-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --radius-tf-sm: 6px;
+  --radius-tf-md: 10px;
+  --radius-tf-lg: 14px;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-tf-bg);
+    color: var(--color-tf-text);
+    font-family: var(--font-tf-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* El foco se ve siempre: es la única pista de navegación por teclado. */
+  :focus-visible {
+    outline: 2px solid var(--color-tf-accent);
+    outline-offset: 2px;
+  }
+}
