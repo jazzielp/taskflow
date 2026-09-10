@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 /**
  * Convención de respuestas HTTP de la API.
  *
@@ -5,36 +7,6 @@
  *   Lista:  { "data": [...], "meta": { "total": 0 } }
  *   Error:  { "error": { "code": "PROJECT_NOT_FOUND", "message": "..." } }
  */
-
-export type ApiSuccess<TData> = {
-  data: TData
-}
-
-export type ListMeta = {
-  total: number
-  page: number
-  limit: number
-}
-
-export type ApiList<TItem> = {
-  data: TItem[]
-  meta: ListMeta
-}
-
-/** Detalle de un campo que no pasó la validación. */
-export type ApiErrorDetail = {
-  path: string
-  message: string
-}
-
-export type ApiError = {
-  error: {
-    code: ErrorCode
-    message: string
-    details?: ApiErrorDetail[]
-    requestId?: string
-  }
-}
 
 /**
  * Códigos de error estables. El cliente puede ramificar sobre el `code`;
@@ -55,4 +27,62 @@ export const ERROR_CODES = {
   INTERNAL_ERROR: 'INTERNAL_ERROR',
 } as const
 
-export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES]
+export const errorCodeSchema = z.enum(ERROR_CODES).meta({
+  id: 'ErrorCode',
+  description:
+    'Código de error estable. El cliente debe ramificar sobre este valor, no sobre `message`.',
+})
+export type ErrorCode = z.infer<typeof errorCodeSchema>
+
+export type ApiSuccess<TData> = {
+  data: TData
+}
+
+export const listMetaSchema = z
+  .object({
+    total: z
+      .number()
+      .int()
+      .min(0)
+      .meta({ description: 'Total de elementos que cumplen el filtro.' }),
+    page: z.number().int().min(1).meta({ description: 'Página devuelta (empieza en 1).' }),
+    limit: z.number().int().min(1).meta({ description: 'Tamaño de página aplicado.' }),
+  })
+  .meta({ id: 'ListMeta', description: 'Metadatos de paginación de un listado.' })
+export type ListMeta = z.infer<typeof listMetaSchema>
+
+export type ApiList<TItem> = {
+  data: TItem[]
+  meta: ListMeta
+}
+
+/** Detalle de un campo que no pasó la validación. */
+export const apiErrorDetailSchema = z
+  .object({
+    path: z.string().meta({
+      description: 'Ruta del campo que falló, con su origen: `body.email`, `query.page`...',
+      example: 'body.email',
+    }),
+    message: z.string().meta({ example: 'Introduce un email válido' }),
+  })
+  .meta({ id: 'ApiErrorDetail', description: 'Detalle de un campo que no pasó la validación.' })
+export type ApiErrorDetail = z.infer<typeof apiErrorDetailSchema>
+
+export const apiErrorSchema = z
+  .object({
+    error: z.object({
+      code: errorCodeSchema,
+      message: z
+        .string()
+        .meta({ description: 'Mensaje para humanos. Puede cambiar entre versiones.' }),
+      details: z.array(apiErrorDetailSchema).optional().meta({
+        description: 'Presente solo en errores de validación.',
+      }),
+      requestId: z.string().optional().meta({
+        description:
+          'Identificador de la petición, también en la cabecera `x-request-id`. Úsalo al reportar una incidencia.',
+      }),
+    }),
+  })
+  .meta({ id: 'ApiError', description: 'Cuerpo de cualquier respuesta de error de la API.' })
+export type ApiError = z.infer<typeof apiErrorSchema>
