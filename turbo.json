@@ -1,51 +1,27 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [
-    ".env",
-    "tooling/**"
-  ],
-  "globalEnv": [
-    "NODE_ENV",
-    "CI"
-  ],
+  "globalDependencies": [".env", "tooling/**"],
+  "globalEnv": ["NODE_ENV", "CI"],
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**",
-        "generated/**"
-      ],
-      "env": [
-        "DATABASE_URL",
-        "SHADOW_DATABASE_URL"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "generated/**"],
+      "env": ["DATABASE_URL", "SHADOW_DATABASE_URL", "VITE_API_URL"]
     },
     "dev": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["VITE_API_URL"]
     },
     "typecheck": {
-      "dependsOn": [
-        "^build",
-        "build"
-      ]
+      "dependsOn": ["^build", "build"]
     },
     "lint": {
-      "dependsOn": [
-        "^build",
-        "build"
-      ]
+      "dependsOn": ["^build", "build"]
     },
     "test": {
-      "dependsOn": [
-        "^build",
-        "build"
-      ],
+      "dependsOn": ["^build", "build"],
       "cache": false,
       "env": [
         "DATABASE_URL",
